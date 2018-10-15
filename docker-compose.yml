@@ -1,28 +1,47 @@
-version: '2'
+version: "3"
 services:
-    rabbit:
-        hostname: rabbit
-        image: rabbitmq:latest
-        environment:
-            - RABBITMQ_DEFAULT_USER=admin
-            - RABBITMQ_DEFAULT_PASS=mypass
-        ports:
-            - "5673:5672"
-    worker:
-        build:
-            context: .
-            dockerfile: dockerfile
-        volumes:
-            - .:/app
-        links:
-            - rabbit
-        depends_on:
-            - rabbit
-    database:
-        hostname: postgres
-        image: postgres:latest
-        ports:
-            - "5432:5432"
-        environment:
-          POSTGRES_USER: "myapp"
-          POSTGRES_PASSWORD: "myapp_password"
+  rabbit1:
+    image: rabbitmq:3-management
+    hostname: rabbit1
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "secret string"
+      RABBITMQ_NODENAME: rabbit1
+    volumes:
+      - "./rabbitmq.config:/etc/rabbitmq/rabbitmq.config"
+      - "./definitions.json:/etc/rabbitmq/definitions.json"
+    ports:
+      - "4369:4369"
+      - "5671:5671"
+      - "5672:5672"
+      - "15671:15671"
+      - "15672:15672"
+      - "25672:25672"
+
+  rabbit2:
+    image: rabbitmq:3-management
+    hostname: rabbit2
+    depends_on:
+      - rabbit1
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "secret string"
+      RABBITMQ_NODENAME: rabbit2
+    volumes:
+      - "./rabbitmq.config:/etc/rabbitmq/rabbitmq.config"
+      - "./definitions.json:/etc/rabbitmq/definitions.json"
+    
+  rabbit3:
+    image: rabbitmq:3-management
+    hostname: rabbit3
+    depends_on:
+      - rabbit1
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "secret string"
+      RABBITMQ_NODENAME: rabbit3
+    volumes:
+      - "./rabbitmq.config:/etc/rabbitmq/rabbitmq.config"
+      - "./definitions.json:/etc/rabbitmq/definitions.json"
+
+networks:
+  default:
+    external:
+      name: rabbitmq-cluster
