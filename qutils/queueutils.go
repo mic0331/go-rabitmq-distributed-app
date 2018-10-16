@@ -7,6 +7,8 @@ import (
 	"github.com/streadway/amqp"
 )
 
+
+const SensorDiscoveryExchange = "SensorDiscovery"
 const SensorListQueue = "SensorList"
 
 // GetChannel return a message broker connection and channel
